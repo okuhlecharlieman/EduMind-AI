@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { HfInference } from "@huggingface/inference";
 
 interface Question {
   question: string;
@@ -7,9 +7,7 @@ interface Question {
   correctAnswer: number;
 }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,31 +20,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.HUGGINGFACE_API_TOKEN) {
       return NextResponse.json(
-        { error: "OpenAI API key not configured" },
+        { error: "HuggingFace API token not configured" },
         { status: 500 }
       );
     }
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a quiz generator for students. Generate exactly 5 multiple choice questions based on the provided text. Each question should have 4 answer options. Return the response as a valid JSON array with objects containing: question (string), options (array of 4 strings), and correctAnswer (0-3 index of correct option). Return ONLY valid JSON, no markdown, no code blocks.",
-        },
-        {
-          role: "user",
-          content: `Generate 5 multiple choice questions from these study notes:\n\n${text}`,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1500,
+    const prompt = `You are a quiz generator for students. Generate exactly 5 multiple choice questions based on the provided text. Each question should have 4 answer options. Return the response as a valid JSON array with objects containing: question (string), options (array of 4 strings), and correctAnswer (0-3 index of correct option). Return ONLY valid JSON, no markdown, no code blocks.
+
+Study Notes:
+${text}
+
+JSON Quiz:`;
+
+    const response = await hf.textGeneration({
+      model: "mistralai/Mistral-7B-Instruct-v0.1",
+      inputs: prompt,
+      parameters: {
+        max_new_tokens: 1000,
+        temperature: 0.7,
+        top_p: 0.95,
+      },
     });
 
-    const content = response.choices[0].message.content || "[]";
+    const content = response.generated_text
+      ?.replace(prompt, "")
+      .trim() || "[]";
     
     // Parse the JSON response
     const cleanedContent = content

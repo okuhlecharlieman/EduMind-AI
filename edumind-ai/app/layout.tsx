@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,6 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "EduMind AI - Turn Notes into Summaries & Quizzes",
   description: "Turn your study notes into instant summaries and AI-generated quizzes using advanced AI technology",
@@ -22,7 +28,6 @@ export const metadata: Metadata = {
     description: "Turn your study notes into instant summaries and quizzes using AI",
     type: "website",
   },
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({
