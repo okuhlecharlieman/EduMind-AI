@@ -97,7 +97,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="border-t border-gray-200 dark:border-gray-800">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            <p>Built with ❤️ for students • Powered by OpenAI</p>
+            <p>Built with ❤️ for students • Powered by HuggingFace</p>
           </div>
         </footer>
       </div>
