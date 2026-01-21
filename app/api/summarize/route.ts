@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
 
-const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
-
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.HUGGINGFACE_API_TOKEN) {
+      return NextResponse.json(
+        { error: "HuggingFace API token not configured" },
+        { status: 500 }
+      );
+    }
+
+    const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
     const { text } = await request.json();
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json(
         { error: "No text provided" },
         { status: 400 }
-      );
-    }
-
-    if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json(
-        { error: "HuggingFace API token not configured" },
-        { status: 500 }
       );
     }
 
