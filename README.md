@@ -2,6 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 # EduMind AI - Smart Study Assistant
 
+https://edumind-ai2.netlify.app/
+
+or
+
+https://edu-mind-ai-nine.vercel.app/
+
 A production-ready, mobile-first AI-powered study assistant web application built for hackathon submission.
 
 ## 🚀 Quick Start
