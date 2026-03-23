@@ -1,144 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EduMind AI - Personalized Study Coach
 
-# EduMind AI - Smart Study Assistant
+EduMind AI is a hackathon-ready Next.js app that turns student notes into AI summaries, adaptive quizzes, personalized weak-topic feedback, and a simple progress dashboard.
 
-https://edumind-ai2.netlify.app/
+## Live demos
 
-or
+- https://edumind-ai2.netlify.app/
+- https://edu-mind-ai-nine.vercel.app/
 
-https://edu-mind-ai-nine.vercel.app/
+## Why this version stands out
 
-A production-ready, mobile-first AI-powered study assistant web application built for hackathon submission.
+EduMind AI now goes beyond generic summarization by adding:
 
-## 🚀 Quick Start
+- **Smart Personalization**: tracks weak quiz topics and recommends what to review next.
+- **Progress Dashboard**: shows quizzes taken, average score, and topics studied.
+- **Explain Like I’m 12**: rewrites summaries in simpler language for accessibility and quick revision.
+- **Impact-first positioning**: designed to support students in under-resourced communities with limited access to tutoring.
+
+## Quick Start
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Set up your HuggingFace API token
 cp .env.example .env.local
-# Edit .env.local and add your HuggingFace API token (FREE!)
-
-# 3. Run the development server
+# Add HUGGINGFACE_API_TOKEN to .env.local
 npm run dev
-
-# 4. Open http://localhost:3000 in your browser
 ```
 
-## ✨ Features
+Then open `http://localhost:3000`.
 
-- **AI-Powered Summaries**: Turn your study notes into concise bullet-point summaries with key concepts
-- **Smart Quiz Generator**: Create 5-question multiple choice quizzes from any text with instant scoring
-- **Mobile-First Design**: Fully responsive interface optimized for all devices
-- **Dark Mode Support**: Built-in dark mode for comfortable studying anytime
-- **Real-Time Processing**: Lightning-fast AI responses powered by HuggingFace
-- **100% FREE**: Uses HuggingFace free tier - no credit card required!
+## Features
 
-## 📋 Tech Stack
+- AI-generated bullet summaries from pasted notes.
+- AI quiz generation with topic labels for personalized feedback.
+- Weak-topic tracker after quiz submission.
+- Simplified summary mode for “Explain Like I’m 12”.
+- Local progress dashboard stored in browser localStorage.
+- Responsive Tailwind CSS UI with gradients, cards, and polished dashboard sections.
+- Dark mode support.
 
-- **Next.js 16** - Modern React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS v4** - Beautiful, responsive UI
-- **HuggingFace Inference API** - Free AI for instant summaries and quizzes
-- **Vercel Ready** - Deploy with one click
+## Tech Stack
 
-## 📖 How It Works
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- HuggingFace Inference API
 
-### Home Page (`/`)
-- Beautiful landing page with app features
-- Dark mode toggle
-- "Start Studying" call-to-action button
-
-### Dashboard (`/dashboard`)
-1. **Input your notes** - Paste study material (up to 5000 characters)
-2. **Choose an action**:
-   - Click "Generate Summary" for key points
-   - Click "Generate Quiz" for practice questions
-3. **Get results**:
-   - Summary: Bullet-point key concepts
-   - Quiz: Answer 5 questions, get instant feedback and score
-
-## 🔌 API Endpoints
+## API Endpoints
 
 ### `POST /api/summarize`
-Generate a summary from study notes.
+Creates a concise summary from notes.
 
 ### `POST /api/quiz`
-Generate quiz questions from study notes.
+Creates a 5-question quiz with topic labels.
 
-## 🛠️ Environment Setup
+### `POST /api/simplify`
+Rewrites a summary in a simpler, younger-student-friendly format.
 
-### Required Environment Variables
+## Environment Variables
 
 ```bash
 HUGGINGFACE_API_TOKEN=hf_your_token_here
 ```
 
-**Get your FREE token**: https://huggingface.co/settings/tokens
-
-See [Environment Setup Guide](../ENVIRONMENT_SETUP.md) for detailed instructions.
-
-## 📦 Scripts
+## Scripts
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm start        # Start production server
-npm run lint     # Run ESLint
+npm run dev
+npm run build
+npm run lint
+npm start
 ```
 
-## 🚀 Deployment
+## Suggested demo flow
 
-### Deploy to Vercel (Recommended)
+1. Paste class notes.
+2. Generate the summary.
+3. Click **Explain Like I’m 12**.
+4. Generate the quiz.
+5. Submit answers and show the weak-topic tracker plus dashboard metrics.
 
-```bash
-npm i -g vercel
-vercel
-```
+## Impact statement
 
-Add your `HUGGINGFACE_API_TOKEN` as an environment variable during setup.
-
-## 🔒 Security
-
-- ✅ API tokens only used on server-side
-- ✅ No sensitive data exposed to client
-- ✅ Input validation on all API routes
-- ✅ Environment variables for secrets
-
-## 🐛 Troubleshooting
-
-**"HuggingFace API token not configured"**
-- Verify `.env.local` exists in this directory
-- Check your token at https://huggingface.co/settings/tokens
-- Restart the dev server after changing `.env.local`
-
-**Slow responses**
-- Keep notes under 2000 characters for faster processing
-- Free tier may have rate limits during peak hours
-
-## 📈 Performance
-
-- Summary generation: ~3-7 seconds (free tier)
-- Quiz generation: ~5-12 seconds (free tier)
-- **FREE**: Unlimited requests on HuggingFace free tier
-
-## 🤝 Contributing
-
-This is a hackathon MVP. Feel free to fork and improve!
-
-## 📄 License
-
-MIT License - Use freely in your projects
-
-## 🔗 Resources
-
-- [Full Documentation](../README.md)
-- [Environment Setup Guide](../ENVIRONMENT_SETUP.md)
-- [Next.js Docs](https://nextjs.org/docs)
-- [HuggingFace Inference API](https://huggingface.co/inference-api)
-- [Tailwind CSS](https://tailwindcss.com)
-
----
-
-Made with ❤️ for students everywhere. Happy studying! 📚
+> EduMind AI helps students study smarter with limited support by combining summarization, practice, and personalized guidance in one lightweight interface.
