@@ -30,6 +30,7 @@ interface ProgressStats {
 }
 
 type DisplayMode = "input" | "summary" | "quiz";
+type AiMode = "live" | "fallback";
 
 const initialStats: ProgressStats = {
   quizzesTaken: 0,
@@ -50,6 +51,7 @@ export default function Dashboard() {
   const [isDark, setIsDark] = useState(false);
   const [progressStats, setProgressStats] = useState<ProgressStats>(initialStats);
   const [latestQuizResult, setLatestQuizResult] = useState<QuizResult | null>(null);
+  const [aiMode, setAiMode] = useState<AiMode>("live");
 
   useEffect(() => {
     const savedStats = window.localStorage.getItem("edumind-progress");
@@ -141,8 +143,9 @@ export default function Dashboard() {
         throw new Error("Failed to generate summary");
       }
 
-      const data = (await response.json()) as { summary: string };
+      const data = (await response.json()) as { summary: string; fallback?: boolean };
       setSummary(data.summary);
+      setAiMode(data.fallback ? "fallback" : "live");
       setSimplifiedSummary("");
       setLatestQuizResult(null);
       setDisplayMode("summary");
@@ -172,8 +175,9 @@ export default function Dashboard() {
         throw new Error("Failed to simplify summary");
       }
 
-      const data = (await response.json()) as { summary: string };
+      const data = (await response.json()) as { summary: string; fallback?: boolean };
       setSimplifiedSummary(data.summary);
+      setAiMode(data.fallback ? "fallback" : "live");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setTimeout(() => setError(""), 5000);
@@ -201,8 +205,9 @@ export default function Dashboard() {
         throw new Error("Failed to generate quiz");
       }
 
-      const data = (await response.json()) as { questions: Question[] };
+      const data = (await response.json()) as { questions: Question[]; fallback?: boolean };
       setQuiz(data.questions);
+      setAiMode(data.fallback ? "fallback" : "live");
       setLatestQuizResult(null);
       setDisplayMode("quiz");
     } catch (err) {
@@ -330,6 +335,19 @@ export default function Dashboard() {
                 <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/80">📊 Finish a quiz to reveal weak topics and progress stats.</div>
               </div>
             </section>
+
+            <section className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-6 shadow-lg shadow-emerald-100/60 dark:border-emerald-500/30 dark:bg-emerald-900/20 dark:shadow-black/20">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Monetization ideas</p>
+              <h3 className="mt-2 text-lg font-bold">Ready-to-sell premium roadmap</h3>
+              <div className="mt-4 space-y-2 text-sm text-emerald-900 dark:text-emerald-100">
+                <p>💎 Pro Learner: unlimited quizzes + saved study plans.</p>
+                <p>👩‍🏫 Tutor Dashboard: track multiple students and export reports.</p>
+                <p>🏫 School Pack: branded portal + class analytics + SSO.</p>
+              </div>
+              <button className="mt-4 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-700">
+                Coming soon: Join waitlist
+              </button>
+            </section>
           </aside>
 
           <section className="space-y-6">
@@ -350,6 +368,14 @@ export default function Dashboard() {
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                       Paste notes from class, tutoring, or self-study. EduMind AI will summarize key ideas, generate a quiz, and track where you need more practice.
                     </p>
+                    <div className="mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
+                      <span className={aiMode === "live" ? "text-emerald-600" : "text-amber-600"}>
+                        {aiMode === "live" ? "● Live AI mode" : "● Reliable fallback mode"}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400">
+                        {aiMode === "live" ? "Cloud model connected." : "Still works even if provider fails."}
+                      </span>
+                    </div>
                   </div>
                   {notes.trim() && (
                     <button

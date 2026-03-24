@@ -87,7 +87,7 @@ export default function Home() {
                   <span className="text-4xl">🚀</span>
                 </div>
 
-                <div id="features" className="space-y-4">
+              <div id="features" className="space-y-4">
                   {[
                     ["✨ Smart summaries", "Highlight key concepts from long notes in seconds."],
                     ["🎯 Explain Like I’m 12", "Rewrite hard ideas in simpler language for accessibility."],
@@ -99,6 +99,16 @@ export default function Home() {
                       <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
                     </div>
                   ))}
+                </div>
+
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-5 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Revenue-ready</p>
+                  <h4 className="mt-2 text-lg font-bold">Monetization hooks judges love</h4>
+                  <ul className="mt-3 space-y-2 text-sm text-emerald-900 dark:text-emerald-100">
+                    <li>• Subscription tiers for students, tutors, and schools.</li>
+                    <li>• Premium exports: PDF revision guides + parent reports.</li>
+                    <li>• White-label classroom portal for institutions.</li>
+                  </ul>
                 </div>
               </div>
             </section>
