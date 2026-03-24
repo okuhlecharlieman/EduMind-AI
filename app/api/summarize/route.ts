@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
 import { fallbackSummary } from "@/lib/aiFallback";
+import { enforceUsageLimit } from "@/lib/monetization";
 
 export async function POST(request: NextRequest) {
   let text = "";
 
   try {
+    const usageCheck = enforceUsageLimit(request, "summarize");
+    if (!usageCheck.allowed) {
+      return NextResponse.json(usageCheck.payload, { status: usageCheck.status });
+    }
+
     const body = await request.json();
     text = body?.text ?? "";
 
@@ -14,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json({ summary: fallbackSummary(text), fallback: true });
+      return NextResponse.json({ summary: fallbackSummary(text), fallback: true, usage: usageCheck.usage });
     }
 
     const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
@@ -39,10 +45,10 @@ Summary (bullet points only):`;
     const summary = response.generated_text?.replace(prompt, "").trim();
 
     if (!summary) {
-      return NextResponse.json({ summary: fallbackSummary(text), fallback: true });
+      return NextResponse.json({ summary: fallbackSummary(text), fallback: true, usage: usageCheck.usage });
     }
 
-    return NextResponse.json({ summary, fallback: false });
+    return NextResponse.json({ summary, fallback: false, usage: usageCheck.usage });
   } catch (error) {
     console.error("Summarize error. Falling back to local summarizer:", error);
     return NextResponse.json({ summary: fallbackSummary(text), fallback: true });

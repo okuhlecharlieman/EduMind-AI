@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
 import { fallbackSimplify } from "@/lib/aiFallback";
+import { enforceUsageLimit } from "@/lib/monetization";
 
 export async function POST(request: NextRequest) {
   let text = "";
 
   try {
+    const usageCheck = enforceUsageLimit(request, "simplify");
+    if (!usageCheck.allowed) {
+      return NextResponse.json(usageCheck.payload, { status: usageCheck.status });
+    }
+
     const body = await request.json();
     text = body?.text ?? "";
 
-    if (!text || text.trim().length === 0) {
-      return NextResponse.json({ error: "No text provided" }, { status: 400 });
-    }
+    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.
 
     if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
+      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true, usage: usageCheck.usage });
     }
 
     const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
@@ -39,10 +43,10 @@ Simple version:`;
     const summary = response.generated_text?.replace(prompt, "").trim();
 
     if (!summary) {
-      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
+      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true, usage: usageCheck.usage });
     }
 
-    return NextResponse.json({ summary, fallback: false });
+    return NextResponse.json({ summary, fallback: false, usage: usageCheck.usage });
   } catch (error) {
     console.error("Simplify error. Falling back to local simplifier:", error);
     return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
