@@ -1,23 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
+import { fallbackSimplify } from "@/lib/aiFallback";
 
 export async function POST(request: NextRequest) {
-  try {
-    if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json(
-        { error: "HuggingFace API token not configured" },
-        { status: 500 }
-      );
-    }
+  let text = "";
 
-    const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
-    const { text } = await request.json();
+  try {
+    const body = await request.json();
+    text = body?.text ?? "";
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json({ error: "No text provided" }, { status: 400 });
     }
 
-    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.\n\nStudy Summary:\n${text}\n\nSimple version:`;
+    if (!process.env.HUGGINGFACE_API_TOKEN) {
+      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
+    }
+
+    const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
+
+    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.
+
+Study Summary:
+${text}
+
+Simple version:`;
 
     const response = await hf.textGeneration({
       model: "mistralai/Mistral-7B-Instruct-v0.1",
@@ -29,11 +36,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const summary = response.generated_text?.replace(prompt, "").trim() || "Unable to simplify summary";
+    const summary = response.generated_text?.replace(prompt, "").trim();
 
-    return NextResponse.json({ summary });
+    if (!summary) {
+      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
+    }
+
+    return NextResponse.json({ summary, fallback: false });
   } catch (error) {
-    console.error("Simplify error:", error);
-    return NextResponse.json({ error: "Failed to simplify summary" }, { status: 500 });
+    console.error("Simplify error. Falling back to local simplifier:", error);
+    return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
   }
 }
