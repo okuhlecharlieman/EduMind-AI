@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
 import { fallbackQuiz, QuizQuestion } from "@/lib/aiFallback";
-import { enforceUsageLimit } from "@/lib/monetization";
 
 interface Question {
   question: string;
@@ -26,21 +25,15 @@ export async function POST(request: NextRequest) {
   let text = "";
 
   try {
-    const usageCheck = enforceUsageLimit(request, "quiz");
-    if (!usageCheck.allowed) {
-      return NextResponse.json(usageCheck.payload, { status: usageCheck.status });
-    }
-
     const body = await request.json();
     text = body?.text ?? "";
 
-    const prompt = `You are a quiz generator for students. Generate exactly 5 multiple choice questions based on the provided text. Each question must include a short topic label such as "Cell Biology" or "Fractions". Return the response as a valid JSON array with objects containing: question (string), options (array of 4 strings), correctAnswer (0-3 index of correct option), and topic (string). Return ONLY valid JSON, no markdown, no code blocks.
-
-Study Notes:
-${text}
+    if (!text || text.trim().length === 0) {
+      return NextResponse.json({ error: "No text provided" }, { status: 400 });
+    }
 
     if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json({ questions: fallbackQuiz(text), fallback: true, usage: usageCheck.usage });
+      return NextResponse.json({ questions: fallbackQuiz(text), fallback: true });
     }
 
     const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
@@ -74,7 +67,7 @@ JSON Quiz:`;
       throw new Error("Invalid quiz format");
     }
 
-    return NextResponse.json({ questions, fallback: false, usage: usageCheck.usage });
+    return NextResponse.json({ questions, fallback: false });
   } catch (error) {
     console.error("Quiz generation error. Falling back to local quiz generator:", error);
     return NextResponse.json({ questions: fallbackQuiz(text), fallback: true });
