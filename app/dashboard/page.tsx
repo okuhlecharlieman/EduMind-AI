@@ -336,6 +336,18 @@ export default function Dashboard() {
               </div>
             </section>
 
+            <section className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-6 shadow-lg shadow-emerald-100/60 dark:border-emerald-500/30 dark:bg-emerald-900/20 dark:shadow-black/20">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Monetization ideas</p>
+              <h3 className="mt-2 text-lg font-bold">Ready-to-sell premium roadmap</h3>
+              <div className="mt-4 space-y-2 text-sm text-emerald-900 dark:text-emerald-100">
+                <p>💎 Pro Learner: unlimited quizzes + saved study plans.</p>
+                <p>👩‍🏫 Tutor Dashboard: track multiple students and export reports.</p>
+                <p>🏫 School Pack: branded portal + class analytics + SSO.</p>
+              </div>
+              <button className="mt-4 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-700">
+                Coming soon: Join waitlist
+              </button>
+            </section>
           </aside>
 
           <section className="space-y-6">

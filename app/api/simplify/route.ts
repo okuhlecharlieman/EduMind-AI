@@ -15,9 +15,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     text = body?.text ?? "";
 
-    if (!text || text.trim().length === 0) {
-      return NextResponse.json({ error: "No text provided" }, { status: 400 });
-    }
+    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.
 
     if (!process.env.HUGGINGFACE_API_TOKEN) {
       return NextResponse.json({ summary: fallbackSimplify(text), fallback: true, usage: usageCheck.usage });

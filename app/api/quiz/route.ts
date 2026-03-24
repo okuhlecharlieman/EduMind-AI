@@ -34,9 +34,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     text = body?.text ?? "";
 
-    if (!text || text.trim().length === 0) {
-      return NextResponse.json({ error: "No text provided" }, { status: 400 });
-    }
+    const prompt = `You are a quiz generator for students. Generate exactly 5 multiple choice questions based on the provided text. Each question must include a short topic label such as "Cell Biology" or "Fractions". Return the response as a valid JSON array with objects containing: question (string), options (array of 4 strings), correctAnswer (0-3 index of correct option), and topic (string). Return ONLY valid JSON, no markdown, no code blocks.
+
+Study Notes:
+${text}
 
     if (!process.env.HUGGINGFACE_API_TOKEN) {
       return NextResponse.json({ questions: fallbackQuiz(text), fallback: true, usage: usageCheck.usage });

@@ -101,6 +101,15 @@ export default function Home() {
                   ))}
                 </div>
 
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50/80 p-5 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Revenue-ready</p>
+                  <h4 className="mt-2 text-lg font-bold">Monetization hooks judges love</h4>
+                  <ul className="mt-3 space-y-2 text-sm text-emerald-900 dark:text-emerald-100">
+                    <li>• Subscription tiers for students, tutors, and schools.</li>
+                    <li>• Premium exports: PDF revision guides + parent reports.</li>
+                    <li>• White-label classroom portal for institutions.</li>
+                  </ul>
+                </div>
               </div>
             </section>
           </div>
