@@ -15,15 +15,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     text = body?.text ?? "";
 
-    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.
-
+    // Check for API Token first
     if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true, usage: usageCheck.usage });
+      return NextResponse.json({ 
+        summary: fallbackSimplify(text), 
+        fallback: true, 
+        usage: usageCheck.usage 
+      });
     }
 
     const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
 
-    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.`
+    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.
 
 Study Summary:
 ${text}
@@ -40,15 +43,23 @@ Simple version:`;
       },
     });
 
+    // Mistral often returns the prompt + the result; we strip the prompt out
     const summary = response.generated_text?.replace(prompt, "").trim();
 
     if (!summary) {
-      return NextResponse.json({ summary: fallbackSimplify(text), fallback: true, usage: usageCheck.usage });
+      return NextResponse.json({ 
+        summary: fallbackSimplify(text), 
+        fallback: true, 
+        usage: usageCheck.usage 
+      });
     }
 
     return NextResponse.json({ summary, fallback: false, usage: usageCheck.usage });
   } catch (error) {
     console.error("Simplify error. Falling back to local simplifier:", error);
-    return NextResponse.json({ summary: fallbackSimplify(text), fallback: true });
+    return NextResponse.json({ 
+      summary: fallbackSimplify(text), 
+      fallback: true 
+    });
   }
 }
