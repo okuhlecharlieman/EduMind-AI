@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
 
-    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.
+    const prompt = `You are a kind AI tutor. Rewrite the following study summary so a 12-year-old student can understand it easily. Keep the explanation accurate, friendly, and short. Return only simple bullet points.`
 
 Study Summary:
 ${text}
