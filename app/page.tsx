@@ -87,7 +87,7 @@ export default function Home() {
                   <span className="text-4xl">🚀</span>
                 </div>
 
-                <div id="features" className="space-y-4">
+              <div id="features" className="space-y-4">
                   {[
                     ["✨ Smart summaries", "Highlight key concepts from long notes in seconds."],
                     ["🎯 Explain Like I’m 12", "Rewrite hard ideas in simpler language for accessibility."],
@@ -100,6 +100,7 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+
               </div>
             </section>
           </div>
