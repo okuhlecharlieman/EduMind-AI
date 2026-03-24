@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HfInference } from "@huggingface/inference";
+import { fallbackQuiz, QuizQuestion } from "@/lib/aiFallback";
 
 interface Question {
   question: string;
@@ -8,23 +9,41 @@ interface Question {
   topic: string;
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    if (!process.env.HUGGINGFACE_API_TOKEN) {
-      return NextResponse.json(
-        { error: "HuggingFace API token not configured" },
-        { status: 500 }
-      );
-    }
+function isValidQuestion(q: Question): boolean {
+  return (
+    !!q.question &&
+    Array.isArray(q.options) &&
+    q.options.length === 4 &&
+    typeof q.correctAnswer === "number" &&
+    q.correctAnswer >= 0 &&
+    q.correctAnswer <= 3 &&
+    !!q.topic
+  );
+}
 
-    const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
-    const { text } = await request.json();
+export async function POST(request: NextRequest) {
+  let text = "";
+
+  try {
+    const body = await request.json();
+    text = body?.text ?? "";
 
     if (!text || text.trim().length === 0) {
       return NextResponse.json({ error: "No text provided" }, { status: 400 });
     }
 
-    const prompt = `You are a quiz generator for students. Generate exactly 5 multiple choice questions based on the provided text. Each question must include a short topic label such as "Cell Biology" or "Fractions". Return the response as a valid JSON array with objects containing: question (string), options (array of 4 strings), correctAnswer (0-3 index of correct option), and topic (string). Return ONLY valid JSON, no markdown, no code blocks.\n\nStudy Notes:\n${text}\n\nJSON Quiz:`;
+    if (!process.env.HUGGINGFACE_API_TOKEN) {
+      return NextResponse.json({ questions: fallbackQuiz(text), fallback: true });
+    }
+
+    const hf = new HfInference(process.env.HUGGINGFACE_API_TOKEN);
+
+    const prompt = `You are a quiz generator for students. Generate exactly 5 multiple choice questions based on the provided text. Each question must include a short topic label such as "Cell Biology" or "Fractions". Return the response as a valid JSON array with objects containing: question (string), options (array of 4 strings), correctAnswer (0-3 index of correct option), and topic (string). Return ONLY valid JSON, no markdown, no code blocks.
+
+Study Notes:
+${text}
+
+JSON Quiz:`;
 
     const response = await hf.textGeneration({
       model: "mistralai/Mistral-7B-Instruct-v0.1",
@@ -37,32 +56,20 @@ export async function POST(request: NextRequest) {
     });
 
     const content = response.generated_text?.replace(prompt, "").trim() || "[]";
+    const cleanedContent = content
+      .replace(/```json\n?/g, "")
+      .replace(/```\n?/g, "")
+      .trim();
 
-    const cleanedContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const questions = JSON.parse(cleanedContent) as QuizQuestion[];
 
-    const questions: Question[] = JSON.parse(cleanedContent);
-
-    if (!Array.isArray(questions) || questions.length === 0 || questions.length > 5) {
+    if (!Array.isArray(questions) || questions.length === 0 || questions.length > 5 || !questions.every(isValidQuestion)) {
       throw new Error("Invalid quiz format");
     }
 
-    for (const q of questions) {
-      if (
-        !q.question ||
-        !Array.isArray(q.options) ||
-        q.options.length !== 4 ||
-        typeof q.correctAnswer !== "number" ||
-        q.correctAnswer < 0 ||
-        q.correctAnswer > 3 ||
-        !q.topic
-      ) {
-        throw new Error("Invalid question format");
-      }
-    }
-
-    return NextResponse.json({ questions });
+    return NextResponse.json({ questions, fallback: false });
   } catch (error) {
-    console.error("Quiz generation error:", error);
-    return NextResponse.json({ error: "Failed to generate quiz" }, { status: 500 });
+    console.error("Quiz generation error. Falling back to local quiz generator:", error);
+    return NextResponse.json({ questions: fallbackQuiz(text), fallback: true });
   }
 }
